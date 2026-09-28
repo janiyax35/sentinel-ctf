@@ -1,0 +1,15 @@
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# Dependencies / build
+node_modules/
+.vercel/
+.DS_Store
+
+# Challenge answer material must never reach the repo
+**/generate_*.py
+**/solve_*.py
+**/*.enc
+seed.local.sql
