@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Operation Silent Dawn · Sentinel CTF</title>
+  <meta name="description" content="Incident-response CTF. Trace The Eclipse syndicate across six stages of the National Aerospace Observatory breach." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"
+        integrity="sha384-hs5SINUk7GPohxRis+rS7grpSWEbtOIJ3sRoseBKg3CDPIKpG55RfSenbvA6ALOt" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="/">
+      <span class="eclipse" aria-hidden="true"></span>
+      <span><span class="brand-name">SENTINEL</span><span class="brand-sub">MISSION CONTROL</span></span>
+    </a>
+    <div class="nav-right">
+      <a class="btn cyan" href="/login"><i class="ti ti-login-2" aria-hidden="true"></i> Sign in</a>
+    </div>
+  </nav>
+
+  <main class="page">
+    <section class="hero">
+      <div class="radar" aria-hidden="true">
+        <div class="ring2"></div><div class="ring2 r2"></div><div class="ring2 r3"></div>
+        <div class="sweep"></div>
+        <span class="eclipse lg" style="position:absolute; inset:52px;"></span>
+      </div>
+      <h1>Operation <span class="hl">Silent Dawn</span></h1>
+      <p class="lede">A syndicate known as <b>The Eclipse</b> has breached the National Aerospace Observatory and is exfiltrating classified satellite schematics. Sentinel isolated the artifacts they left behind. You are the incident responder — reconstruct the trail before the auction closes.</p>
+
+      <div class="termlog" id="termlog" aria-label="Incident log"></div>
+
+      <a class="btn primary" href="/login"><i class="ti ti-shield-bolt" aria-hidden="true"></i> Begin investigation</a>
+
+      <div class="mini-trail" style="margin-top:34px;" id="mini-trail"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
+          integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+  <script src="/config.js"></script>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/index.js"></script>
+</body>
+</html>

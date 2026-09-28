@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rules of engagement · Sentinel</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"
+        integrity="sha384-hs5SINUk7GPohxRis+rS7grpSWEbtOIJ3sRoseBKg3CDPIKpG55RfSenbvA6ALOt" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div id="chrome"></div>
+  <main class="page narrow">
+    <h2 class="section-title">Rules of engagement</h2>
+
+    <div class="card hud" style="margin-bottom:20px">
+      <div class="card-title"><i class="ti ti-flag" aria-hidden="true"></i> Flag format</div>
+      <p class="prose">Every flag follows the pattern <code>Eclipse{...}</code>. In the flag terminal you only type what goes inside the braces; the <code>Eclipse{</code> and <code>}</code> are added for you. Pasting a full <code>Eclipse{...}</code> string also works.</p>
+    </div>
+
+    <div class="card hud" style="margin-bottom:20px">
+      <div class="card-title"><i class="ti ti-diamond" aria-hidden="true"></i> Scoring</div>
+      <p class="prose">Each case awards fixed points on your first correct flag. A case can only be scored once. Your rank is decided by total score, and ties are broken by whoever reached that score first.</p>
+    </div>
+
+    <div class="card hud" style="margin-bottom:20px">
+      <div class="card-title"><i class="ti ti-bulb" aria-hidden="true"></i> Intel (hints)</div>
+      <p class="prose">Each case has intel you can decrypt. Every piece of intel costs a fixed number of points, shown before you unlock it. Intel is progressive — you must decrypt earlier intel first. The cost is charged the moment you decrypt it, whether or not you later solve the case, so your score can go below zero.</p>
+    </div>
+
+    <div class="card hud" style="margin-bottom:20px">
+      <div class="card-title"><i class="ti ti-clock-bolt" aria-hidden="true"></i> Submission limit</div>
+      <p class="prose">You may transmit up to <b>5 flag attempts every 60 seconds</b>, counted across all cases. Wrong guesses are logged. Automating brute-force submissions is not permitted.</p>
+    </div>
+
+    <div class="card hud cyan" style="margin-bottom:20px">
+      <div class="card-title"><i class="ti ti-plug-connected" aria-hidden="true"></i> Accessing the live target (WEB-03)</div>
+      <div class="prose">
+        <p>One case runs a live, intentionally vulnerable web service behind Cloudflare Access. To reach it:</p>
+        <ul>
+          <li><b>Browser / Burp:</b> open the access link, enter your allowed email, and type the one-time PIN emailed to you. In Burp, sign in through the embedded browser.</li>
+          <li><b>Command line:</b> run <code>cloudflared access login &lt;url&gt;</code> once, then use <code>cloudflared access curl &lt;url&gt;</code>. Alternatively copy the <code>CF_Authorization</code> cookie from the browser into <code>curl -b</code>.</li>
+        </ul>
+        <p>If the primary link is down, check the case page for a backup link activated by Sentinel Control.</p>
+      </div>
+    </div>
+
+    <div class="card hud" style="border-color:rgba(255,77,109,.4)">
+      <div class="card-title"><i class="ti ti-shield-x" aria-hidden="true"></i> Code of conduct</div>
+      <p class="prose">Attack only the challenge targets provided. Do <b>not</b> attack the scoring platform, its infrastructure, other responders, or any system outside the challenge scope. Do not share flags. Play fair.</p>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
+          integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+  <script src="/config.js"></script>
+  <script src="/assets/notify.js"></script>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/rules.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Threat board · Sentinel</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"
+        integrity="sha384-hs5SINUk7GPohxRis+rS7grpSWEbtOIJ3sRoseBKg3CDPIKpG55RfSenbvA6ALOt" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div id="chrome"></div>
+  <main class="page">
+    <h2 class="section-title">Threat board</h2>
+    <div id="podium" class="podium"></div>
+    <div class="card hud" style="margin-bottom:24px">
+      <div class="card-title"><i class="ti ti-chart-line" aria-hidden="true"></i> Score progression <span class="aside">top responders</span></div>
+      <div style="position:relative;height:240px"><canvas id="chart"></canvas></div>
+    </div>
+    <div class="card hud">
+      <div class="card-title"><i class="ti ti-list-numbers" aria-hidden="true"></i> Full ranking</div>
+      <div style="overflow-x:auto"><table class="rank-table" id="table"></table></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
+          integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+          integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
+  <script src="/config.js"></script>
+  <script src="/assets/notify.js"></script>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/scoreboard.js"></script>
+</body>
+</html>
