@@ -311,17 +311,24 @@
   async function renderUsers() {
     const r = await adminGet("users");
     const users = r.users || [];
-    panel.innerHTML = `<div style="margin-bottom:14px"><button class="btn violet" id="add-user"><i class="ti ti-user-plus" aria-hidden="true"></i> Create responder</button></div>
+    panel.innerHTML = `<div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn violet" id="add-user"><i class="ti ti-user-plus" aria-hidden="true"></i> Create responder</button>
+        <button class="btn danger" id="reset-board"><i class="ti ti-refresh-alert" aria-hidden="true"></i> Reset leaderboard</button>
+      </div>
+      <div class="access-note" style="margin-bottom:14px"><b>Ban</b> blocks a responder's login and removes them from the board. <b>Hide</b> only removes them from the board (they can still play). <b>Reset score</b> wipes one responder's solves and intel.</div>
       <div class="card hud violet"><table class="admin-table">
-        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Board</th><th></th></tr></thead><tbody>
         ${users.map((u) => `<tr>
           <td>${App.esc(u.display_name || "")}</td><td class="mono">${App.esc(u.email || "")}</td>
           <td>${App.esc(u.role)}</td>
-          <td>${u.is_disabled ? '<span class="admin-badge" style="color:var(--bad)">disabled</span>' : '<span class="admin-badge" style="color:var(--ok)">active</span>'}</td>
+          <td>${u.is_disabled ? '<span class="admin-badge" style="color:var(--bad)">banned</span>' : '<span class="admin-badge" style="color:var(--ok)">active</span>'}</td>
+          <td>${u.hidden_from_board ? '<span class="admin-badge" style="color:var(--warn)">hidden</span>' : '<span class="admin-badge">shown</span>'}</td>
           <td style="white-space:nowrap">
-            <button class="btn ghost tu" data-id="${u.id}" data-d="${u.is_disabled ? 1 : 0}" title="Enable/disable"><i class="ti ti-ban" aria-hidden="true"></i></button>
+            <button class="btn ghost tu" data-id="${u.id}" data-d="${u.is_disabled ? 1 : 0}" title="${u.is_disabled ? "Unban" : "Ban"}"><i class="ti ${u.is_disabled ? "ti-lock-open" : "ti-ban"}" aria-hidden="true"></i></button>
+            <button class="btn ghost hb" data-id="${u.id}" data-h="${u.hidden_from_board ? 1 : 0}" title="${u.hidden_from_board ? "Show on board" : "Hide from board"}"><i class="ti ${u.hidden_from_board ? "ti-eye" : "ti-eye-off"}" aria-hidden="true"></i></button>
+            <button class="btn ghost rs" data-id="${u.id}" data-name="${App.esc(u.display_name || "")}" title="Reset score"><i class="ti ti-restore" aria-hidden="true"></i></button>
             <button class="btn ghost ru" data-id="${u.id}" data-role="${u.role}" title="Toggle admin"><i class="ti ti-shield" aria-hidden="true"></i></button>
-          </td></tr>`).join("") || '<tr><td colspan="5"><div class="empty">No responders</div></td></tr>'}
+          </td></tr>`).join("") || '<tr><td colspan="6"><div class="empty">No responders</div></td></tr>'}
       </tbody></table></div>`;
 
     document.getElementById("add-user").addEventListener("click", async () => {
@@ -336,8 +343,34 @@
         Sentinel.notify({ type: "ok", title: "RESPONDER CREATED" }); renderUsers(); }
       catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
     });
+
+    document.getElementById("reset-board").addEventListener("click", async () => {
+      const ok = await Sentinel.confirm({
+        title: "Reset the entire leaderboard?",
+        message: "This deletes every solve and unlocked intel for all responders, setting all scores to zero. Accounts, challenges, flags and hints are kept. This cannot be undone.",
+        danger: true, confirmText: "Reset leaderboard", icon: "ti-refresh-alert"
+      });
+      if (!ok) return;
+      try { await adminPost({ resource: "leaderboard", action: "reset" });
+        Sentinel.notify({ type: "ok", title: "LEADERBOARD RESET", message: "All scores cleared." }); renderUsers(); }
+      catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
+    });
+
     panel.querySelectorAll(".tu").forEach((b) => b.addEventListener("click", async () => {
-      try { await adminPost({ resource: "users", action: "update", id: b.dataset.id, is_disabled: b.dataset.d !== "1" }); renderUsers(); }
+      const banning = b.dataset.d !== "1";
+      if (banning && !(await Sentinel.confirm({ title: "Ban this responder?", message: "They will be logged out, blocked from the platform, and removed from the leaderboard.", danger: true, confirmText: "Ban" }))) return;
+      try { await adminPost({ resource: "users", action: "update", id: b.dataset.id, is_disabled: banning });
+        Sentinel.notify({ type: banning ? "warn" : "ok", title: banning ? "RESPONDER BANNED" : "RESPONDER REINSTATED" }); renderUsers(); }
+      catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
+    }));
+    panel.querySelectorAll(".hb").forEach((b) => b.addEventListener("click", async () => {
+      try { await adminPost({ resource: "users", action: "update", id: b.dataset.id, hidden_from_board: b.dataset.h !== "1" }); renderUsers(); }
+      catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
+    }));
+    panel.querySelectorAll(".rs").forEach((b) => b.addEventListener("click", async () => {
+      if (!(await Sentinel.confirm({ title: "Reset this responder's score?", message: "Deletes all solves and unlocked intel for " + (b.dataset.name || "this responder") + ". Their account stays active.", danger: true, confirmText: "Reset score" }))) return;
+      try { await adminPost({ resource: "users", action: "reset_score", id: b.dataset.id });
+        Sentinel.notify({ type: "ok", title: "SCORE RESET" }); renderUsers(); }
       catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
     }));
     panel.querySelectorAll(".ru").forEach((b) => b.addEventListener("click", async () => {
