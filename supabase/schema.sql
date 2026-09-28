@@ -8,11 +8,12 @@
 
 -- ---------- profiles (1:1 with auth.users) ----------
 create table if not exists public.profiles (
-  id           uuid primary key references auth.users(id) on delete cascade,
-  display_name text not null default 'Responder',
-  role         text not null default 'player' check (role in ('player','admin')),
-  is_disabled  boolean not null default false,
-  created_at   timestamptz not null default now()
+  id                uuid primary key references auth.users(id) on delete cascade,
+  display_name      text not null default 'Responder',
+  role              text not null default 'player' check (role in ('player','admin')),
+  is_disabled       boolean not null default false,
+  hidden_from_board boolean not null default false,
+  created_at        timestamptz not null default now()
 );
 
 -- ---------- challenges ----------
@@ -137,7 +138,7 @@ left join (
   select user_id, sum(cost_paid) spent, max(unlocked_at) last_unlock
   from public.hint_unlocks group by user_id
 ) h on h.user_id = p.id
-where p.role <> 'admin' and p.is_disabled = false;
+where p.role <> 'admin' and p.is_disabled = false and p.hidden_from_board = false;
 
 -- ============================================================================
 -- Enable RLS everywhere, with NO policies (default deny for anon/authenticated).

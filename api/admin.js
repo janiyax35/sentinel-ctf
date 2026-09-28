@@ -47,7 +47,7 @@ async function handleGet(req, res, resource, params) {
   if (resource === "endpoints")
     return U.json(res, 200, { endpoints: await U.sbSelect("challenge_endpoints", "select=*&order=challenge_id.asc,sort_order.asc") });
   if (resource === "users") {
-    const profiles = await U.sbSelect("profiles", "select=id,display_name,role,is_disabled&order=display_name.asc");
+    const profiles = await U.sbSelect("profiles", "select=id,display_name,role,is_disabled,hidden_from_board&order=display_name.asc");
     let emails = {};
     try {
       const au = await U.authAdmin("admin/users?per_page=200");
@@ -183,7 +183,26 @@ async function handlePost(req, res, body) {
       if (body.display_name !== undefined) patch.display_name = body.display_name;
       if (body.role !== undefined) patch.role = body.role === "admin" ? "admin" : "player";
       if (body.is_disabled !== undefined) patch.is_disabled = !!body.is_disabled;
+      if (body.hidden_from_board !== undefined) patch.hidden_from_board = !!body.hidden_from_board;
       await U.sbUpdate("profiles", "id=eq." + encodeURIComponent(body.id), patch);
+      return U.json(res, 200, { ok: true });
+    }
+    if (action === "reset_score") {
+      // wipe this responder's solves and unlocked hints; account and audit log stay
+      await U.sbDelete("solves", "user_id=eq." + encodeURIComponent(body.id));
+      await U.sbDelete("hint_unlocks", "user_id=eq." + encodeURIComponent(body.id));
+      return U.json(res, 200, { ok: true });
+    }
+  }
+
+  if (resource === "leaderboard") {
+    if (action === "reset") {
+      // clear ALL scores: solves, hint unlocks, and the submission audit log.
+      // Challenges, flags, hints, files, links and accounts are kept.
+      const ALL = "created_at=gte.1970-01-01T00:00:00Z";
+      await U.sbDelete("solves", "solved_at=gte.1970-01-01T00:00:00Z");
+      await U.sbDelete("hint_unlocks", "unlocked_at=gte.1970-01-01T00:00:00Z");
+      if (body.clear_submissions) await U.sbDelete("submissions", ALL);
       return U.json(res, 200, { ok: true });
     }
   }
