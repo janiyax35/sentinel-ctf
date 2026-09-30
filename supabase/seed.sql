@@ -1,16 +1,18 @@
 -- ============================================================================
--- SENTINEL CTF — seed content (6 stages, hints, files, access links).
--- Run AFTER schema.sql. Safe to re-run: it upserts by slug.
+-- SENTINEL CTF — seed content (6 stages, intel slots, files, access links).
+-- Run AFTER schema.sql, on a FRESH database only.
 --
--- FLAGS ARE NOT SEEDED HERE. Flag HMACs need the secret FLAG_PEPPER, which only
--- lives in the server environment. After deploying, set each flag from the
--- admin console (Challenges -> key icon). Flags to enter (inside the braces):
---   STEG-01    Eclipse{REDACTED}   (decoy: Eclipse{REDACTED})
---   OSINT-02   Eclipse{REDACTED}         (case-insensitive)
---   WEB-03     Eclipse{REDACTED}
---   NET-04     Eclipse{REDACTED}
---   CRYPTO-05  Eclipse{REDACTED}
---   REV-06     Eclipse{REDACTED}
+-- WARNING: do not re-run this on a live event database. It deletes and
+-- re-inserts the intel rows, which also deletes every responder's unlocked
+-- intel (hint_unlocks cascades), and resets the evidence file records.
+--
+-- No answer material lives in this repository:
+--   * Flags are not seeded. Flag HMACs need the secret FLAG_PEPPER, which only
+--     lives in the server environment. Set each flag from the admin console
+--     (Sentinel Control -> Challenges -> key icon).
+--   * Intel rows are created with their positions and point costs but
+--     placeholder text. Fill in the real text from Sentinel Control -> Intel,
+--     or run your private supabase/seed.local.sql (gitignored) after this file.
 -- ============================================================================
 
 -- ---------- challenges ----------
