@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="356" viewBox="0 0 840 356" role="img" aria-labelledby="title desc">
+<title id="title">Sentinel CTF architecture</title>
+<desc id="desc">Three zones. INTERNET · UNTRUSTED, VERCEL, SUPABASE. Nodes: cdn libraries (pinned · sri hashes); responder browser (static ui · anon key); cloudflare dns (ctf.janith.qzz.io); static pages (csp · nosniff · deny frames); /api · 8 functions (node runtime · 0 npm deps); env secrets (service key · flag pepper); auth (email + password · signup off); postgres (rls on all tables · deny-all); storage (private bucket · 60 s signed urls). The browser loads pinned CDN libraries and resolves ctf.janith.qzz.io through Cloudflare DNS, gets static pages from Vercel, signs in directly with Supabase Auth, and sends every flag, hint and admin request to the /api functions. The functions read env secrets, verify the user's token with Supabase Auth, query Postgres and sign Storage URLs. hot path: flag submission · browser -&gt; /api/submit -&gt; hmac check -&gt; postgres (service role).</desc>
+<style>@font-face{font-family:JBM;font-weight:400;src:url(data:font/woff2;base64,d09GMgABAAAAABLkAA8AAAAAJjAAABKJAAI2BAAAAAAAAAAAAAAAAAAAAAAAAAAAGlIbIBwqBmA/U1RBVF4AgVYRCAq7IK1CATYCJAODJAuBVAAEIAWEPgcgG3Udo6KU1GKT/cWB3fhj4TgjDAQS+rVajXwsAjyi6O1fsA87HEfNBQeIdRjD3QhJZgmqtfd7NoiSwZEmkAQ6rMgSOR8VFjI2OvbXF+rdD7itfzNOZyY2IIpRRI0FjJYxQHEKbeCJGdf9o72fpT+6/JF959frzF3JMLNPStj2AXGSGqf/oPM/CnELJLd2eximirE+bNOSmuD/puZ2nRhInRjJZjNV4Lfj75c2uy9l2KOvxNUu5KEwEgkW9Xb7z8+HzdXNXU+u7dHuenKN0pZSmmOQCJVCKwmlNlcdCt+NRQiH0JJtuZoIWZNAFbG235NjbbWwUXEHqDgOafTvorEAyu3SkKRClEKUKYOoMAKiSkDUCAiBgBChE+qJhSatQrt2QUJ6AwhQiqccMrl7cUmyBEB2FlVFg4RE4g4t43DfybGiECBWfvLwMYkgPc0VBBYmyWOH2gInSKDEbvILkOe48+PAJ7S0COP/yy3jcqMBNZnUFbeBFol6Nk4WB9TLJusQd35k9yQA/GMmSWQCYpMS9eLaFAnIMWRRue915H3NTq/vgMzIso+SYHnAFLkiSVI33iBLvDTNFHCcgKhhi7a4qyWvsrhS6IF4LVooEXoFG8JmS91y7SKQPaz2vbt744Udjwj7qAYQPGAMGAe7SaZ9GRtoHma9QiJ62HQy6UNyIlhQdPy8fAzCHKxYQV2G2PVjBCCQbFUAewA/wAMo/k/ZPwxhA3/yCOqiJt64RbL0s4QkHRcuM3HEGf/UpdWrL34iAyxaD8UimawItGWJKxdyVcVoLopWpqWkpfDT0nLSN5Xl5GSko0UZmag42Y8UFGWmlKUWZpR/Y5ak5FVkFKZkpGeKCuoomFgFjbk3o2I2UvxYaamllWk1BWloKc8G0hKEZMjwmzLyM9S8hBFzc0Wi5OQEbpPBn7m0mvT08vSEfcgPpjVDpB9IBAlMYlyMKAdzd8lM/2qRRAlQ/FvezX/BzRSTtFy5sIgwid5XXFbZL6xr29AQiRsUf+TFQETQL8dQukKepM8fY6E8pICU8+Z7LjaMyXLx0zg9Dz4S4osHRlI4JEmAjuUwgnE+HybkUR2HaFTygMIjIboovSCXXUNr7GEJpe5aTST5G+DtI37W+NXExXxgYgHm00VXn5mJopNqlzQqFc/3xkHN1v1Bom3KXj2mSrflfF+yeiMwNIeN+BmAaV8g5wzpBDXDpUlREgmCk0TjTmD0Dii7tjY4jHlJxheeN2jufaticuLZmsqYTFx93cxMP67nxuDy0At8sUCssO6yzFXh2pbLKfh5jC6ENivcNbEHPhFwSEdD0kWlbIALn3N2pejXmDxhycYuMlhCE8WzYsnahCQJUmgthGAkVIwRjexk3Ub3XUq2mA0AKbqfpb7idhhGQlg6SHiFKIiaMdYwF6AxhfCFobFBcnyLCCSeZpRCZistF4ckEmgGi4kzv5FTLI/IgjxPMlLcJhU3HLclzbmPylhxZYFQqJzCDPkAxRNCrvAdWf1onbT4OMHJETnM/Gjuz4KWSr5c2NipJSQBlQzYgSbrr/3ZSofJrvaFxOOCVzFhSYkPt1iNhR7GmLKgiAJq6uSqI4bzvHahhEWrC8Fwd068KauFPrypdFOKK39DzlBrpBd+AebRCp0mGZP8VSQzDeWigsrPXHves/zsbQqXLUrbCeMou45wB5eoFEfaYsCFECX/4vNqlHLFFjwbbJfWrDVljbTKyhSYWkaV2tBncXIVOztRyAEfwUECw09VBjf6YP2LXaU4f1AW3GtyXBg0G3CItrIYioJaiQ/hREBlnY0FC1r7sUI/JSwHbHeyEpbtaC50Tek72aDLUP/ygt9v2xs5cOc+BxyoHaIj7yuK2J5JZVwu+4oMGWwwVZoopoLMaHkgz6BISbr4fMstimb0hnYS/2Ubey38ms08NP40G6sf2O+3Zq8id5lBMXQ7t3XO/dhitbqfvWrcMuN/LtPKXBVelss89zwHK3zsAdWDhBdLXLazvoCz+87j3L7KFLb065fry1Z2afbl7LJWdzPoqRRusPcCRWeF9ebu2pCcpqvSK8vCJaDU9R61QN2x2qyugTZXWntrsCxcq277ixqvTt/5YUCnPZpakXSzNuU4pKPt83rSY+MjhkEqmCjPw+3j1cUgnnf5zbkgxKCVjiH8Gabhla2I/36xdjhj/Fd5o3SX5YonA5MpvRHLBx6Z2VmjeT/vozP7+QBN3de2zOhN+2xNUFZ/fvHEUda/dX9SbL68fAoJKCLnMCr5q11Gs1yEEzhaN+u1usjIIq90xyIercgvi3JdntdJULuncpgfXO8kbZArpWUWRPXrUNaejDDO11MwhQ/mwqznFMtt2kJpMcumNPaY+1zwfdNInSi+xzlhoPv9/7lPf9cTv/+NQYTvtv/PZmsfgMczT/0MeDdeioyHe9rqTNZaJvOYq7HJrcLae/0t1G5mWWsklWqjWbvcOaskNRIJoVHOQTNKBlo7fISZ7PBO6ZCkv63dS3AYTqpUJIFZMHJCLzWMw9t9/jbo23jAMCCRB6kaSh6COIaQPUyaTWQNYb+fYYhsXMlaPhE5RPEWFvzv3sx2/apmlTp4oDiq4hT7w40Ydb0bnPwbOeeSMd8wEGXPkZ7D7hnEhnQ0OjczwFG0EcflraXuvIVFkwfmZ6Bvg1OMnJaH1n0PLg5e54iyMLXB7TOzYN2YtXx7S3kLfuaY4ZvZDQ/akDiGTqcMy2ZG/LMjNDqQNJk40YoCtzH/wXhRgjGO4V/YvfZ7f7wwvq3gQhCjpK+1TfO+bV6f9IJgWogEMYJgVBiJmTFboFJqbwixoW/jW124Q+onCWngcvW64w0rx1W0UYPRBtVxuGpt+NZzEh5OpkIdkgCBkxI/WpQu6GFvJE4pwsbphz/+my2TBoeAUbXHwnBNYEPfxidE+8P0as3WKJF7vnb4oGRGunefnKKVKkov3wfNqHGgWdaTzsnMWkpLa2QNTcT9oXJzAbPZpOro8rcQgalh8HBSXK1S4rK2xmbihXCFscAeM6tlPZFWOLv/H/sN+/R+EKMDm8eDOVyOWqnXqFV69fOuh4bH4If73vEu/fhYtkcqzfI8tvhj7/3vQMz5Tpe0NB+ryyir6xRQpV5NqaDTlJ5+uqv58lLW/c6ERlBgkaSm6lVCUgCiVyaeHBwaf2ubkDMLt02+FX4y+Mrc4PKXl1QtFsG2la/gbPa7T3uPie9+tbDwk7sPi70SnQ1uztioYy9zb5+ThX9RG/ZYbeFu9/Wy9iflrYSI5JLpKWe3PxZ0LXqimT+o+/RSGndo2zqvbWwVN30GFlTnMGrzcqLcBreKLOflYayJcoZj/tM+Hm/cpiAo/Fx8eIUM12PnYlI+7RtqlfQ/l5R4Q8f3T/XHdXN8XC5X6UnsPEzPdeW4ooaL687eB0hF2UjMd9ofjjl1DhOWl4csr3IbXDQnT+swCmxyLRza6XKESBCjRKC9w6f1zA7v5CPI++3Fg10SgtBpOn6LcMm6aaaWFBC4HtMQeqIsEd67ZJVd9RMOs/E0e7oircz/MfvxJbC6xt5S3y+ikXBOhtqup9zBUd+0LxhzU3a9OiM72qM0c24Hn4/ujnKYGcWtVEH+G61Hc/mEjdY7g/2eSW5IheFSOa7HfeBmH9txPZvw+j0suNac2zEdqbnjCxZPCs5N9IN/gztv+LJPBu9OvK8ietlvm3+HuRaDoFbf/P09bK62uqvyFhZIoZ3Measpsb6plcKuqq9tEtR3yG345c4rqp/glX5WfaXxiprPeLz16iuhT8ipQH5goELiJNLfTMAJl59v7TBPEglOiQm7iiDwEzhBqJTkDW0R9K45+4ysUecMjfhPaxt6mVY55UyL0PyfCtzxSAUKGUERiuD0WiEY4DDpnIFqf3CELSDrvPJnmrkwDrvQMaEnms/De6yctXtgxFvFFROYTqlw2LtekiRnqzMtXB/RUC9R8mu+etOUyqR3Gmmzl/EJ7X7TpVzPmTph++fC6q1Xm1I96YzFaA10hWDI0GnRUxexF13EXfQe+x6lVZ/LQj3qnxgP+jgfptXJ5LgOW1IJTo3Dj3cJ+hYmVnktOO/Y7ETv5fiw1C1gpLsFoaysHQL17i41uHb8pcp3W3sFYeWS6ryKijmLZgnaHi25M2V45LrhZ2S1zwzHrovemfpI8fDM2vDzRvl3i7NrcNsa88Zz8ZGtzsCDWu2DzJwzmPEOcFz7QgN7nFMs6FkQow2VQSToRZJWtdGqwTXGURtHqX4oRXilUPq9nzwEOPZJzRMnI1cuLu27nIW+vg++O9Tua9CQeiVuNGg5hJAHIu0UGWgNToIRC2bb2j02FipRMlTXvROcRqfTYJRB2YFRFGbh1m8RsTu5R+9PjcxMBDq0Um+4Ay5cNR+uvDEkekj00+3clVCH9kz0ojbOfEamxSjMgNm3ofb8R7iEk9vYurhfePc0myVaD4RGw4bgxDg0oPSQUhGlZeXRj+4URl60tImJsjp1t6y5n6YV0QElbcdtLppmhm+Twj0Je/NGuAef8vy33S1Ps0nSrSJor5UfaFpvpupavpRKv2oRNVE7A412vsFH9swORewaGpOIG/VX+pvsQkOPVt7q6BVrtYhYR641eFhRqfPOBl29lNbCffi8ytNmQG9QDA0q9fr1HDJsMM2rzFWLUeFzgtoXhMIXagXPwZWX2aU7tktBfIHg7erqtwXCp922TwuueMmB6/jRtYqqC6oqr6/MU3GOC1+jBQ8U08UPFBTedF7/ppNvma+JgNQ38w7MD8/f7aZ3S7JLxCov+4j+nJwSePX59TbcTKtUZppYca/QAx1yP6lo5lySyaj6lXCprHsNrRLbox34u8Kq31J2d1eUsZom/fSF31LkrdOFfo+/cPpWlvr3wNO0J48QS5ryW5XsW5x/m9S2CyG122KNjiRHY+wRcPKfchPBmqdCxOhs0Be6el7op9WSvHqOWgVzrKD9Rr/mw033u/PZ3OHqS144Zz1kvHRPrLfAfcbral+xr9vaVnzsGZic68EzvOzFsq3bc5ivc8bdV7A71meF1s/ZkRa8EVO5hGJzDXoF30eMMqOEj7/EEptcQlUj09hcUnKJjMf1VjxRS9smvGJkNJdKwRVj4zWgTazq1NcI1dvEz8BHhRqxOTk8H7vxd+aitIsYOCd2jfH7jXCwisEZsAt396VVMx4GVGHLRxYYuSn1FS7IpbyST0xAkgs859zguSnnQM7Bnd6k4SHEzbXe1LXpmj7CBTGhQWfSLvVONik8CA6uOeXJv5Z7BwnYoc3dyTtfT+pt6VFc0JrKlH5norhDS98NZ33pQ8xDj3nOUeC6gLmZuelHTg9ceLfkPFHaxHZesuR87qY3IxCHA57n/y4VwM/QKgOtFCjoN//OK1wqpd1eEW1QzfmCgymD3Xn7btetux1jyNTjdYrXd04ikPHzO2ZqGEnQWgxaYqrd6mM6giQoAndCfmQXCBRB/fsroZqoBtCtuVdo3Q6Pi8O3z+td1phSGbPebJDxaoSXthC6Tuu8VddJtFxa+3oRqk9UCGzGWikXnhpyRYYnvbQloa4u2DHWvLlOtNw837wMn6NsX7dtRSI1NkW/LjXwWxoMjFCqdNU1WiRc2cIdFaU7XSXFprobvqO3+MafnF4NY12mgM9e/V13LZ797MuqFdF3lItx3I0gfqhylJWzVVVseZkDRDeTByOxZ4jrAj5QaKDq6RFyyxdUBASISkhCZv96E7TJoF1GvcBFXDjccpzUH4+CO7PG0+OLeAdJQLby9VbjlZj0k+HOtDv25WUDAqSRhODiffgz1b8nx8d/Bb+vXu0g2cbLv/y9PRN7Hv8TdBqXDBfKzwlYwgafq9gBIXZkLyWcQht4wQN9EAE/87AgyhrZMAVWJxeWMQSMThkcFIMIasDNCOp0H51qiBW5Cfih3EmKWF9YGAPOKbtCjbPtK2MIGBn9Dm6me3oZeIddReF6UMPHbO9XVnP0WuAemPK64QU4Fw4Bw0CerbLgDwAwroiwjxHhIQMaQTbhWeAPePlWd0KAPcclW7cp+2heNgfLHJg7I/kogFfwHILguX9InAxvD4mn9sWQBA1RPSRRSXQO3qQ+hsZAAMrjhCMBIoBklryX3lgWpMT1KGPGLZgUNWjItEptWo44E1cC/cTsgtPIDSMGRY2aCtqMEYwFGZNChts0LBskzCAZSulkKCqCxBMZD9oqNWs2KCoUt9ghTcKnncQ0Iyzyq4656nUaEbY8YNCMEXtSmyYlrWKrmJFuMSFX1Ci3+HYvLBx0SfbSqMhRibm0sKBbywZi0mDQCBWGsR4iQciOt5u2rF8bEAAA) format("woff2")}
+.m{font-family:JBM,ui-monospace,"Cascadia Code",Consolas,monospace}
+.s{font-family:SG,system-ui,-apple-system,"Segoe UI",sans-serif}
+.up{text-transform:uppercase}
+@keyframes rise{from{opacity:0;transform:translateY(4px)}}
+.p0{animation:rise 0.35s ease-out 0.15s both}
+.p1{animation:rise 0.35s ease-out 0.25s both}
+.p2{animation:rise 0.35s ease-out 0.35s both}
+.p3{animation:rise 0.35s ease-out 0.35s both}
+.p4{animation:rise 0.35s ease-out 0.42s both}
+.p5{animation:rise 0.35s ease-out 0.49s both}
+.p6{animation:rise 0.35s ease-out 0.56s both}
+.p7{animation:rise 0.35s ease-out 0.63s both}
+.p8{animation:rise 0.35s ease-out 0.7s both}
+.p9{animation:rise 0.35s ease-out 0.77s both}
+.pa{animation:rise 0.35s ease-out 0.8400000000000001s both}
+.pb{animation:rise 0.35s ease-out 0.91s both}
+.hot{stroke-dasharray:4 4;animation:dash 1s linear infinite}@keyframes dash{to{stroke-dashoffset:-8}}
+.pc{animation:rise 0.4s ease-out 1s both}
+@keyframes kd{0%{opacity:0;transform:translateX(0)}15%,85%{opacity:1}100%{opacity:0;transform:translateX(58px)}}
+@keyframes ke{0%{opacity:0;transform:translateX(0)}15%,85%{opacity:1}100%{opacity:0;transform:translateX(60px)}}
+.pf{animation:rise 0.35s ease-out 1.4s both}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect x=".5" y=".5" width="839" height="355" rx="6" fill="#080B0F" stroke="#1C242E"/>
+<path d="M.5 36.5V6.5a6 6 0 0 1 6-6h827a6 6 0 0 1 6 6v30z" fill="#10151C"/>
+<path d="M1 36.5h838" stroke="#1C242E"/>
+<circle cx="20" cy="18.5" r="5.5" fill="#FF5F57"/><circle cx="38" cy="18.5" r="5.5" fill="#FEBC2E"/><circle cx="56" cy="18.5" r="5.5" fill="#28C840"/>
+<text class="m" x="420" y="22.5" text-anchor="middle" font-size="12" fill="#8A97A5">architecture — sentinel-ctf</text>
+<text class="m" x="822" y="22.5" text-anchor="end" font-size="11" fill="#55616E">request flow</text>
+<g class="p0"><rect x="16.5" y="70.5" width="196" height="240" rx="4" fill="none" stroke="#FF4D5E" stroke-opacity=".55" stroke-dasharray="5 4"/>
+<text class="m" x="28" y="87" font-size="10.5" letter-spacing="1.4" fill="#FF4D5E">INTERNET · UNTRUSTED</text></g>
+<g class="p1"><rect x="244.5" y="70.5" width="250" height="240" rx="4" fill="none" stroke="#FFB020" stroke-opacity=".55" stroke-dasharray="5 4"/>
+<text class="m" x="256" y="87" font-size="10.5" letter-spacing="1.4" fill="#FFB020">VERCEL</text></g>
+<g class="p2"><rect x="526.5" y="70.5" width="298" height="240" rx="4" fill="none" stroke="#FFB020" stroke-opacity=".55" stroke-dasharray="5 4"/>
+<text class="m" x="538" y="87" font-size="10.5" letter-spacing="1.4" fill="#FFB020">SUPABASE</text></g>
+<g class="p3"><rect x="32.5" y="100.5" width="164" height="46" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="44" y="120" font-size="12" fill="#E6EDF3">cdn libraries</text>
+<text class="m" x="44" y="137" font-size="11" fill="#55616E">pinned · sri hashes</text></g>
+<g class="p4"><rect x="32.5" y="170.5" width="164" height="54" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="44" y="193" font-size="12" fill="#E6EDF3">responder browser</text>
+<text class="m" x="44" y="211" font-size="11" fill="#55616E">static ui · anon key</text></g>
+<g class="p5"><rect x="32.5" y="248.5" width="164" height="46" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="44" y="268" font-size="12" fill="#E6EDF3">cloudflare dns</text>
+<text class="m" x="44" y="285" font-size="11" fill="#55616E">ctf.janith.qzz.io</text></g>
+<g class="p6"><rect x="262.5" y="100.5" width="214" height="46" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="274" y="120" font-size="12" fill="#E6EDF3">static pages</text>
+<text class="m" x="274" y="137" font-size="11" fill="#55616E">csp · nosniff · deny frames</text></g>
+<g class="p7"><rect x="262.5" y="170.5" width="214" height="54" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="274" y="193" font-size="12" fill="#E6EDF3">/api · 8 functions</text>
+<text class="m" x="274" y="211" font-size="11" fill="#55616E">node runtime · 0 npm deps</text></g>
+<g class="p8"><rect x="262.5" y="248.5" width="214" height="46" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="274" y="268" font-size="12" fill="#E6EDF3">env secrets</text>
+<text class="m" x="274" y="285" font-size="11" fill="#55616E">service key · flag pepper</text></g>
+<g class="p9"><rect x="544.5" y="100.5" width="262" height="46" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="556" y="120" font-size="12" fill="#E6EDF3">auth</text>
+<text class="m" x="556" y="137" font-size="11" fill="#55616E">email + password · signup off</text></g>
+<g class="pa"><rect x="544.5" y="170.5" width="262" height="54" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="556" y="193" font-size="12" fill="#E6EDF3">postgres</text>
+<text class="m" x="556" y="211" font-size="11" fill="#55616E">rls on all tables · deny-all</text></g>
+<g class="pb"><rect x="544.5" y="248.5" width="262" height="46" rx="3" fill="#10151C" stroke="#2A3542"/>
+<text class="m" x="556" y="268" font-size="12" fill="#E6EDF3">storage</text>
+<text class="m" x="556" y="285" font-size="11" fill="#55616E">private bucket · 60 s signed urls</text></g>
+<g class="pc"><path d="M114 146L114 170" fill="none" stroke="#2A3542" stroke-width="1.2"/><path d="M114 170L110.85 165.5L117.15 165.5Z" fill="#2A3542"/></g>
+<g class="pc"><path d="M114 248L114 224" fill="none" stroke="#55616E" stroke-width="1.2" stroke-dasharray="2 3"/><path d="M114 224L110.85 228.5L117.15 228.5Z" fill="#55616E"/></g>
+<g class="pc"><path d="M196 185L228 185L228 123L262 123" fill="none" stroke="#2A3542" stroke-width="1.2"/><path d="M262 123L257.5 119.85L257.5 126.15Z" fill="#2A3542"/></g>
+<g class="pc"><path d="M196 177L204 177L204 56L675 56L675 100" fill="none" stroke="#2A3542" stroke-width="1.2"/><path d="M675 100L671.85 95.5L678.15 95.5Z" fill="#2A3542"/><text class="m" x="440" y="51" text-anchor="middle" font-size="10.5" fill="#55616E">sign-in · supabase-js</text></g>
+<g class="pc"><path d="M196 205L262 205" fill="none" stroke="#B6FF3B" stroke-width="1.5" class="hot"/><path d="M262 205L257.5 201.85L257.5 208.15Z" fill="#B6FF3B"/></g>
+<g class="pc"><path d="M476 180L510 180L510 123L544 123" fill="none" stroke="#2A3542" stroke-width="1.2"/><path d="M544 123L539.5 119.85L539.5 126.15Z" fill="#2A3542"/></g>
+<g class="pc"><path d="M476 205L544 205" fill="none" stroke="#B6FF3B" stroke-width="1.5" class="hot"/><path d="M544 205L539.5 201.85L539.5 208.15Z" fill="#B6FF3B"/></g>
+<g class="pc"><path d="M476 214L510 214L510 271L544 271" fill="none" stroke="#2A3542" stroke-width="1.2"/><path d="M544 271L539.5 267.85L539.5 274.15Z" fill="#2A3542"/></g>
+<g class="pc"><path d="M369 248L369 224" fill="none" stroke="#55616E" stroke-width="1.2" stroke-dasharray="2 3"/><path d="M369 224L365.85 228.5L372.15 228.5Z" fill="#55616E"/></g>
+<circle cx="198" cy="205" r="2.5" fill="#B6FF3B" style="animation:kd 1.6s linear 1.4s infinite both"/>
+<circle cx="478" cy="205" r="2.5" fill="#B6FF3B" style="animation:ke 1.6s linear 1.8s infinite both"/>
+<text class="m pf" x="20" y="338" font-size="11.5" fill="#55616E">hot path: flag submission · browser -&gt; /api/submit -&gt; hmac check -&gt; postgres (service role)</text>
+</svg>

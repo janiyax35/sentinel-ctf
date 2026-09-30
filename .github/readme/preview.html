@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README preview</title>
+<!-- Local preview only: roughly how GitHub renders README.md.
+     Serve the repo root (python -m http.server 8091) and open /.github/readme/preview.html -->
+<link id="gh-css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/github-markdown-dark.css">
+<script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js"></script>
+<style>
+  :root { --page: #0d1117; --box: #0d1117; --border: #30363d; --ink: #8b949e; }
+  html.light { --page: #fff; --box: #fff; --border: #d0d7de; --ink: #59636e; }
+  body { margin: 0; background: var(--page); font: 13px system-ui, sans-serif; color: var(--ink); }
+  .bar { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 12px; }
+  .bar button { font: inherit; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--ink); cursor: pointer; }
+  .box { max-width: 896px; margin: 0 auto 48px; border: 1px solid var(--border); border-radius: 6px; background: var(--box); }
+  .box header { padding: 8px 16px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .markdown-body { padding: 24px; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <button id="theme">toggle light / dark</button>
+  <button id="replay">replay animations</button>
+  <button id="width">toggle phone width</button>
+</div>
+<div class="box"><header>janiyax35 / sentinel-ctf / README.md</header><article class="markdown-body" id="md"></article></div>
+<script>
+  function localise(html) {
+    return html.replace(/(src|srcset)="\.github\/readme\/(assets|screenshots)\//g, '$1="$2/');
+  }
+  async function render() {
+    const md = await (await fetch("../../README.md", { cache: "reload" })).text();
+    const bust = "?v=" + Date.now();
+    document.getElementById("md").innerHTML = localise(marked.parse(md))
+      .replace(/((?:assets|screenshots)\/[\w.-]+\.(?:svg|png))/g, "$1" + bust);
+    applyTheme();
+  }
+  // follow the toggle, not the OS setting, so <picture> sources match the page
+  let light = false;
+  function applyTheme() {
+    document.documentElement.classList.toggle("light", light);
+    document.getElementById("gh-css").href = `https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/github-markdown-${light ? "light" : "dark"}.css`;
+    document.querySelectorAll("picture source").forEach((s) => {
+      s.dataset.media ||= s.media;
+      if (s.dataset.media.includes("dark")) s.media = light ? "not all" : "all";
+      if (s.dataset.media.includes("light")) s.media = light ? "all" : "not all";
+    });
+  }
+  document.getElementById("theme").onclick = () => { light = !light; applyTheme(); };
+  document.getElementById("replay").onclick = render;
+  document.getElementById("width").onclick = () => {
+    const box = document.querySelector(".box");
+    box.style.maxWidth = box.style.maxWidth ? "" : "390px";
+  };
+  render();
+</script>
+</body>
+</html>
