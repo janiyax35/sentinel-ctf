@@ -1,0 +1,2 @@
+.github/readme/** linguist-vendored
+.github/readme/assets/*.svg linguist-generated
