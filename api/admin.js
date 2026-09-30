@@ -7,6 +7,17 @@ async function requireAdmin(req) {
   return { profile: id.profile };
 }
 
+/* how many admin accounts exist right now */
+async function adminCount() {
+  const rows = await U.sbSelect("profiles", "role=eq.admin&select=id");
+  return rows ? rows.length : 0;
+}
+/* fetch a target's current role (for self / last-admin safeguards) */
+async function getProfileRole(id) {
+  const rows = await U.sbSelect("profiles", "id=eq." + encodeURIComponent(id) + "&select=id,role");
+  return rows && rows[0] ? rows[0] : null;
+}
+
 /* ---------------- reads ---------------- */
 async function handleGet(req, res, resource, params) {
   if (resource === "stats") {
@@ -75,7 +86,7 @@ async function handleGet(req, res, resource, params) {
 }
 
 /* ---------------- writes ---------------- */
-async function handlePost(req, res, body) {
+async function handlePost(req, res, body, me) {
   const resource = body.resource;
   const action = body.action;
 
@@ -179,6 +190,17 @@ async function handlePost(req, res, body) {
       return U.json(res, 200, { ok: true, id: newId });
     }
     if (action === "update") {
+      const isSelf = me && String(body.id) === String(me.id);
+      const demoting = body.role !== undefined && (body.role === "admin" ? "admin" : "player") === "player";
+      // self-protection: an admin can never lock themselves out
+      if (isSelf && demoting) return U.json(res, 400, { error: "You cannot demote your own admin account." });
+      if (isSelf && body.is_disabled === true) return U.json(res, 400, { error: "You cannot ban your own account." });
+      // last-admin safeguard: never leave the platform with zero admins
+      if (demoting) {
+        const tgt = await getProfileRole(body.id);
+        if (tgt && tgt.role === "admin" && (await adminCount()) <= 1)
+          return U.json(res, 400, { error: "At least one admin must remain. Promote another responder to admin first." });
+      }
       const patch = {};
       if (body.display_name !== undefined) patch.display_name = body.display_name;
       if (body.role !== undefined) patch.role = body.role === "admin" ? "admin" : "player";
@@ -187,22 +209,63 @@ async function handlePost(req, res, body) {
       await U.sbUpdate("profiles", "id=eq." + encodeURIComponent(body.id), patch);
       return U.json(res, 200, { ok: true });
     }
+    if (action === "set_email") {
+      // change the login identity (dangerous). email_confirm avoids a confirmation email.
+      const email = String(body.email || "").trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return U.json(res, 400, { error: "Enter a valid email address." });
+      await U.authAdmin("admin/users/" + encodeURIComponent(body.id), { method: "PUT", body: { email: email, email_confirm: true } });
+      return U.json(res, 200, { ok: true });
+    }
+    if (action === "set_password") {
+      // manual password reset (player forgot their password and contacted the admin)
+      const pw = String(body.password || "");
+      if (pw.length < 8) return U.json(res, 400, { error: "Password must be at least 8 characters." });
+      await U.authAdmin("admin/users/" + encodeURIComponent(body.id), { method: "PUT", body: { password: pw } });
+      return U.json(res, 200, { ok: true });
+    }
     if (action === "reset_score") {
       // wipe this responder's solves and unlocked hints; account and audit log stay
       await U.sbDelete("solves", "user_id=eq." + encodeURIComponent(body.id));
       await U.sbDelete("hint_unlocks", "user_id=eq." + encodeURIComponent(body.id));
       return U.json(res, 200, { ok: true });
     }
+    if (action === "delete") {
+      // hard delete: removes the auth user. FK cascades wipe profile, solves,
+      // hint unlocks and submissions automatically. Irreversible.
+      if (me && String(body.id) === String(me.id)) return U.json(res, 400, { error: "You cannot delete your own account." });
+      const tgt = await getProfileRole(body.id);
+      if (tgt && tgt.role === "admin" && (await adminCount()) <= 1)
+        return U.json(res, 400, { error: "At least one admin must remain. Promote another responder before deleting this one." });
+      await U.authAdmin("admin/users/" + encodeURIComponent(body.id), { method: "DELETE" });
+      return U.json(res, 200, { ok: true });
+    }
   }
 
   if (resource === "leaderboard") {
     if (action === "reset") {
-      // clear ALL scores: solves, hint unlocks, and the submission audit log.
-      // Challenges, flags, hints, files, links and accounts are kept.
+      // clear scores only: solves + hint unlocks. The audit log (submissions)
+      // is kept unless clear_submissions is set. Accounts/content are kept.
       const ALL = "created_at=gte.1970-01-01T00:00:00Z";
       await U.sbDelete("solves", "solved_at=gte.1970-01-01T00:00:00Z");
       await U.sbDelete("hint_unlocks", "unlocked_at=gte.1970-01-01T00:00:00Z");
       if (body.clear_submissions) await U.sbDelete("submissions", ALL);
+      return U.json(res, 200, { ok: true });
+    }
+    if (action === "full_reset") {
+      // fresh start after testing: wipe scores AND the audit log together.
+      // Accounts, challenges, flags, hints, files and links are kept.
+      await U.sbDelete("solves", "solved_at=gte.1970-01-01T00:00:00Z");
+      await U.sbDelete("hint_unlocks", "unlocked_at=gte.1970-01-01T00:00:00Z");
+      await U.sbDelete("submissions", "created_at=gte.1970-01-01T00:00:00Z");
+      return U.json(res, 200, { ok: true });
+    }
+  }
+
+  if (resource === "submissions") {
+    if (action === "clear") {
+      // clear the audit log only (every submission from every responder).
+      // Scores (solves + hint unlocks) are untouched.
+      await U.sbDelete("submissions", "created_at=gte.1970-01-01T00:00:00Z");
       return U.json(res, 200, { ok: true });
     }
   }
@@ -234,7 +297,7 @@ module.exports = async function (req, res) {
     }
     if (req.method === "POST") {
       const body = await U.readJson(req);
-      return await handlePost(req, res, body);
+      return await handlePost(req, res, body, gate.profile);
     }
     return U.json(res, 405, { error: "Method not allowed" });
   } catch (e) {
