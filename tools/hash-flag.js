@@ -3,8 +3,8 @@
    Use it to set the optional STEG-01 decoy hash via SQL, or to verify a stored flag.
 
    Usage:
-     FLAG_PEPPER=your-pepper node tools/hash-flag.js "Eclipse{REDACTED}"
-     FLAG_PEPPER=your-pepper node tools/hash-flag.js --ci "Eclipse{REDACTED}"   (case-insensitive)
+     FLAG_PEPPER=your-pepper node tools/hash-flag.js "Eclipse{example_flag}"
+     FLAG_PEPPER=your-pepper node tools/hash-flag.js --ci "Eclipse{example_flag}"   (case-insensitive)
 
    Then, for a decoy:
      update public.challenge_flags set decoy_hmac = '<printed hash>'

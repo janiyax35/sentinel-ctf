@@ -33,7 +33,9 @@ How to deploy your own instance on **Supabase** (auth, database, files) and **Ve
 
 **2.2 Create the schema.** SQL Editor → New query → paste all of `supabase/schema.sql` → **Run**. This creates the tables, turns on row-level security everywhere (with no policies, so the public keys can read nothing), builds the `scoreboard` view and adds the trigger that creates a profile for every new user.
 
-**2.3 Seed the cases.** New query → paste all of `supabase/seed.sql` → **Run**. It inserts the six cases, their intel with point costs, the evidence file records and a placeholder access link. It does **not** insert any flags.
+**2.3 Seed the cases.** New query → paste all of `supabase/seed.sql` → **Run**. It inserts the six cases, their intel slots with point costs, the evidence file records and a placeholder access link. It does **not** contain any answer material: there are no flags, and the intel text is a placeholder. Fill in the intel text from **Sentinel Control → Intel**, or, if you keep a private `supabase/seed.local.sql` (gitignored), run it right after `seed.sql`.
+
+Only run `seed.sql` on a fresh database. Re-running it on a live event deletes and re-creates the intel rows, which also wipes every player's unlocked intel.
 
 **2.4 Create the storage bucket.** Storage → New bucket → name it exactly `challenge-files` and leave it **private**.
 
