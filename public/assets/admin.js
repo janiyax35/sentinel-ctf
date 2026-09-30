@@ -311,25 +311,41 @@
   async function renderUsers() {
     const r = await adminGet("users");
     const users = r.users || [];
+    const meId = (App.me && App.me.id) ? String(App.me.id) : "";
     panel.innerHTML = `<div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn violet" id="add-user"><i class="ti ti-user-plus" aria-hidden="true"></i> Create responder</button>
-        <button class="btn danger" id="reset-board"><i class="ti ti-refresh-alert" aria-hidden="true"></i> Reset leaderboard</button>
       </div>
-      <div class="access-note" style="margin-bottom:14px"><b>Ban</b> blocks a responder's login and removes them from the board. <b>Hide</b> only removes them from the board (they can still play). <b>Reset score</b> wipes one responder's solves and intel.</div>
+      <div class="access-note" style="margin-bottom:14px"><b>Edit</b> changes name, email or password (manual reset). <b>Ban</b> blocks login and removes from the board. <b>Hide</b> only removes from the board. <b>Reset score</b> wipes one responder's solves and intel. <b>Delete</b> permanently removes the account and all its data. Actions on your own account are disabled.</div>
       <div class="card hud violet"><table class="admin-table">
         <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Board</th><th></th></tr></thead><tbody>
-        ${users.map((u) => `<tr>
-          <td>${App.esc(u.display_name || "")}</td><td class="mono">${App.esc(u.email || "")}</td>
+        ${users.map((u) => {
+          const self = String(u.id) === meId;
+          return `<tr>
+          <td>${App.esc(u.display_name || "")}${self ? ' <span class="admin-badge" style="color:var(--telemetry)">you</span>' : ""}</td><td class="mono">${App.esc(u.email || "")}</td>
           <td>${App.esc(u.role)}</td>
           <td>${u.is_disabled ? '<span class="admin-badge" style="color:var(--bad)">banned</span>' : '<span class="admin-badge" style="color:var(--ok)">active</span>'}</td>
           <td>${u.hidden_from_board ? '<span class="admin-badge" style="color:var(--warn)">hidden</span>' : '<span class="admin-badge">shown</span>'}</td>
           <td style="white-space:nowrap">
+            <button class="btn ghost eu" data-id="${u.id}" data-name="${App.esc(u.display_name || "")}" data-email="${App.esc(u.email || "")}" title="Edit details"><i class="ti ti-user-edit" aria-hidden="true"></i></button>
+            ${self ? "" : `
             <button class="btn ghost tu" data-id="${u.id}" data-d="${u.is_disabled ? 1 : 0}" title="${u.is_disabled ? "Unban" : "Ban"}"><i class="ti ${u.is_disabled ? "ti-lock-open" : "ti-ban"}" aria-hidden="true"></i></button>
             <button class="btn ghost hb" data-id="${u.id}" data-h="${u.hidden_from_board ? 1 : 0}" title="${u.hidden_from_board ? "Show on board" : "Hide from board"}"><i class="ti ${u.hidden_from_board ? "ti-eye" : "ti-eye-off"}" aria-hidden="true"></i></button>
             <button class="btn ghost rs" data-id="${u.id}" data-name="${App.esc(u.display_name || "")}" title="Reset score"><i class="ti ti-restore" aria-hidden="true"></i></button>
             <button class="btn ghost ru" data-id="${u.id}" data-role="${u.role}" title="Toggle admin"><i class="ti ti-shield" aria-hidden="true"></i></button>
-          </td></tr>`).join("") || '<tr><td colspan="6"><div class="empty">No responders</div></td></tr>'}
-      </tbody></table></div>`;
+            <button class="btn ghost du" data-id="${u.id}" data-name="${App.esc(u.display_name || "")}" title="Delete responder" style="color:var(--bad)"><i class="ti ti-trash" aria-hidden="true"></i></button>`}
+          </td></tr>`;
+        }).join("") || '<tr><td colspan="6"><div class="empty">No responders</div></td></tr>'}
+      </tbody></table></div>
+
+      <div class="card hud" style="margin-top:20px;border-color:var(--bad)">
+        <div class="card-title" style="color:var(--bad)"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Testing &amp; reset</div>
+        <div class="access-note" style="margin-bottom:12px">Use these when preparing the platform. <b>Clear audit log</b> deletes every submission but keeps scores. <b>Reset leaderboard</b> deletes all solves and intel but keeps the audit log. <b>Full reset</b> clears everything for a fresh start. Accounts, challenges, flags, hints, files and links are never touched.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn ghost" id="clear-audit"><i class="ti ti-eraser" aria-hidden="true"></i> Clear audit log</button>
+          <button class="btn danger" id="reset-board"><i class="ti ti-refresh-alert" aria-hidden="true"></i> Reset leaderboard</button>
+          <button class="btn danger" id="full-reset"><i class="ti ti-flame" aria-hidden="true"></i> Full reset (fresh start)</button>
+        </div>
+      </div>`;
 
     document.getElementById("add-user").addEventListener("click", async () => {
       const v = await formModal("Create responder", [
@@ -344,10 +360,22 @@
       catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
     });
 
+    document.getElementById("clear-audit").addEventListener("click", async () => {
+      const ok = await Sentinel.confirm({
+        title: "Clear the audit log?",
+        message: "Deletes every submission record from every responder. Scores (solves and intel) are kept. This cannot be undone.",
+        danger: true, confirmText: "Clear audit log", icon: "ti-eraser"
+      });
+      if (!ok) return;
+      try { await adminPost({ resource: "submissions", action: "clear" });
+        Sentinel.notify({ type: "ok", title: "AUDIT LOG CLEARED" }); renderUsers(); }
+      catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
+    });
+
     document.getElementById("reset-board").addEventListener("click", async () => {
       const ok = await Sentinel.confirm({
         title: "Reset the entire leaderboard?",
-        message: "This deletes every solve and unlocked intel for all responders, setting all scores to zero. Accounts, challenges, flags and hints are kept. This cannot be undone.",
+        message: "This deletes every solve and unlocked intel for all responders, setting all scores to zero. The audit log, accounts, challenges, flags and hints are kept. This cannot be undone.",
         danger: true, confirmText: "Reset leaderboard", icon: "ti-refresh-alert"
       });
       if (!ok) return;
@@ -356,6 +384,20 @@
       catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
     });
 
+    document.getElementById("full-reset").addEventListener("click", async () => {
+      const ok = await Sentinel.confirm({
+        title: "Full reset for a fresh start?",
+        message: "This clears ALL scores AND the entire audit log for every responder. Accounts, challenges, flags, hints, files and links are kept. Use this after testing, before the event. This cannot be undone.",
+        danger: true, confirmText: "Wipe everything", icon: "ti-flame"
+      });
+      if (!ok) return;
+      try { await adminPost({ resource: "leaderboard", action: "full_reset" });
+        Sentinel.notify({ type: "ok", title: "PLATFORM RESET", message: "Scores and audit log cleared. Fresh start ready." }); renderUsers(); }
+      catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
+    });
+
+    panel.querySelectorAll(".eu").forEach((b) => b.addEventListener("click", () =>
+      editUserDetails({ id: b.dataset.id, display_name: b.dataset.name, email: b.dataset.email })));
     panel.querySelectorAll(".tu").forEach((b) => b.addEventListener("click", async () => {
       const banning = b.dataset.d !== "1";
       if (banning && !(await Sentinel.confirm({ title: "Ban this responder?", message: "They will be logged out, blocked from the platform, and removed from the leaderboard.", danger: true, confirmText: "Ban" }))) return;
@@ -379,6 +421,74 @@
       try { await adminPost({ resource: "users", action: "update", id: b.dataset.id, role: next }); renderUsers(); }
       catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
     }));
+    panel.querySelectorAll(".du").forEach((b) => b.addEventListener("click", async () => {
+      const name = b.dataset.name || "this responder";
+      const v = await formModal("Delete " + name + "?", [
+        { name: "confirm", label: 'This permanently removes the account and ALL its data (solves, intel, submissions). It cannot be undone. Type the display name "' + name + '" to confirm.', required: true, placeholder: name }
+      ], "Delete permanently");
+      if (!v) return;
+      if (String(v.confirm).trim() !== name) { Sentinel.notify({ type: "bad", title: "NAME DID NOT MATCH", message: "Deletion cancelled." }); return; }
+      try { await adminPost({ resource: "users", action: "delete", id: b.dataset.id });
+        Sentinel.notify({ type: "ok", title: "RESPONDER DELETED" }); renderUsers(); }
+      catch (e) { Sentinel.notify({ type: "bad", title: "FAILED", message: e.message }); }
+    }));
+  }
+
+  /* ---------- edit user details (name / email / password) ---------- */
+  function editUserDetails(u) {
+    return new Promise((resolve) => {
+      const backdrop = document.createElement("div");
+      backdrop.className = "modal-backdrop";
+      const modal = document.createElement("div");
+      modal.className = "modal";
+      modal.style.maxWidth = "480px";
+      modal.innerHTML = `<div class="mh"><i class="ti ti-user-edit" aria-hidden="true"></i><h3>Edit responder</h3></div>
+        <form id="eu-form">
+          <div class="field"><label for="eu-name">Display name</label>
+            <input id="eu-name" type="text" value="${App.esc(u.display_name || "")}" required /></div>
+          <div style="border:1px solid var(--bad);border-radius:10px;padding:12px;margin-top:6px">
+            <div class="access-note" style="color:var(--bad);margin-bottom:10px"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Danger area — these change how the responder signs in.</div>
+            <div class="field"><label for="eu-email">Login email</label>
+              <input id="eu-email" type="email" value="${App.esc(u.email || "")}" /></div>
+            <div class="field" style="margin-bottom:0"><label for="eu-pw">New password (manual reset)</label>
+              <input id="eu-pw" type="text" autocomplete="off" placeholder="Leave blank to keep current password" /></div>
+          </div>
+        </form>
+        <div class="mact"><button class="btn ghost" type="button" id="eu-cancel">Cancel</button>
+          <button class="btn primary" type="submit" form="eu-form">Save changes</button></div>`;
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+      const form = modal.querySelector("#eu-form");
+      function close(v) { backdrop.remove(); resolve(v); }
+      modal.querySelector("#eu-cancel").addEventListener("click", () => close(null));
+      backdrop.addEventListener("click", (e) => { if (e.target === backdrop) close(null); });
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = form.querySelector("#eu-name").value.trim();
+        const email = form.querySelector("#eu-email").value.trim();
+        const pw = form.querySelector("#eu-pw").value;
+        const origName = (u.display_name || "").trim();
+        const origEmail = (u.email || "").trim();
+        if (!name) { Sentinel.notify({ type: "bad", title: "NAME REQUIRED" }); return; }
+        if (pw && pw.length < 8) { Sentinel.notify({ type: "bad", title: "PASSWORD TOO SHORT", message: "Use at least 8 characters." }); return; }
+        const btn = modal.querySelector('button[form="eu-form"]');
+        btn.disabled = true;
+        try {
+          let did = false;
+          if (name !== origName) { await adminPost({ resource: "users", action: "update", id: u.id, display_name: name }); did = true; }
+          if (email && email !== origEmail) { await adminPost({ resource: "users", action: "set_email", id: u.id, email: email }); did = true; }
+          if (pw) { await adminPost({ resource: "users", action: "set_password", id: u.id, password: pw }); did = true; }
+          close(true);
+          Sentinel.notify({ type: did ? "ok" : "info", title: did ? "RESPONDER UPDATED" : "NO CHANGES" });
+          renderUsers();
+        } catch (err) {
+          btn.disabled = false;
+          Sentinel.notify({ type: "bad", title: "FAILED", message: err.message });
+        }
+      });
+      const first = form.querySelector("#eu-name");
+      if (first) first.focus();
+    });
   }
 
   async function renderSubmissions() {
