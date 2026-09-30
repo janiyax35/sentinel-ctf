@@ -400,7 +400,7 @@ textarea { resize: vertical; min-height: 90px; font-family: var(--font-mono); }
 /* auth card */
 .auth-wrap { min-height: 78vh; display: grid; place-items: center; padding: 20px; }
 .auth-card { width: 100%; max-width: 400px; text-align: center; }
-.auth-card .eclipse { margin: 0 auto 18px; }
+.auth-card .eclipse { display: block; margin: 0 auto 18px; }
 .auth-card h1 { font-size: 24px; margin-bottom: 4px; }
 .auth-card .sub { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; font-family: var(--font-mono); }
 .auth-card form { text-align: left; }
